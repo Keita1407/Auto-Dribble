@@ -1,0 +1,16 @@
+if not getgenv().AutoDribbleSettings then getgenv().AutoDribbleSettings={
+    Enabled = true,
+    range = 30
+}
+end
+local S,R,P,U=getgenv().AutoDribbleSettings,game:GetService"ReplicatedStorage",game:GetService"Players",game:GetService"RunService"
+local L=P.LocalPlayer or P.PlayerAdded:Wait()
+local function i()local c=L.Character or L.CharacterAdded:Wait()return c,c:WaitForChild"HumanoidRootPart",c:WaitForChild"Humanoid"end
+local C,H,M=i()L.CharacterAdded:Connect(function()C,H,M=i()end)
+local B=R.Packages.Knit.Services.BallService.RE.Dribble
+local A=require(R.Assets.Animations)
+local G=function(s)if A.Dribbles[s]then local a=Instance.new"Animation"a.AnimationId=A.Dribbles[s]return M:LoadAnimation(a)end end
+local T=function(p)if p~=L and p.Character then local c=p.Character local v=c.Values and c.Values.Sliding local h=c:FindFirstChildOfClass"Humanoid"return(v and v.Value)or(h and h.MoveDirection.Magnitude>0 and h.WalkSpeed==0)end end
+local O=function(p)return L.Team and p.Team and L.Team~=p.Team end
+local D=function(d)if S.Enabled and C.Values and C.Values.HasBall.Value then B:FireServer()local s=L.PlayerStats.Style.Value local t=G(s)if t then t:Play()t:AdjustSpeed(math.clamp(1+(10-d)/10,1,2))end local f=workspace:FindFirstChild"Football"if f then f.AssemblyLinearVelocity=Vector3.new()f.CFrame=H.CFrame*CFrame.new(0,-2.5,0)end end end
+U.Heartbeat:Connect(function()if S.Enabled and C and H then for _,p in pairs(P:GetPlayers())do if O(p)and T(p)then local r=p.Character and p.Character:FindFirstChild"HumanoidRootPart"if r then local d=(r.Position-H.Position).Magnitude if d<S.range then D(d)break end end end end end end)
